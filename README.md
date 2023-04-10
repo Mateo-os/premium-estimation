@@ -3,7 +3,9 @@
 ### Como correr
 
 pip install -r requirements.txt
+
 python main.py
+
 (Fua que facil)
 
 Los parametros son:
