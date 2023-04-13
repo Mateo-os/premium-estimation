@@ -92,8 +92,13 @@ def broadie_glasserman_parallel(b,N,T,s0,K,r,sigma,option_type,variance_reductio
 
   processes = []
   for h in range(0,b):
-    prev_val = s0
-    for j in range(0,N):
+    if (h % 2 == 1) and variance_reduction:
+      last_s1 = dynamic_matrix[h-1,0,0]['val']
+      dynamic_matrix[h,0,0]['val'] = generate_negative_sample(s0,last_s1,dt,sigma,r)
+    else:
+      dynamic_matrix[h,0,0]['val'] = generate_new_sample(s0,dt,sigma,r)
+    prev_val = dynamic_matrix[h,0,0]['val']
+    for j in range(1,N):
       dynamic_matrix[h,0,j]['val'] = generate_new_sample(prev_val,dt,sigma,r)
       prev_val = dynamic_matrix[h,0,j]['val']
     memory_data['index'] = h

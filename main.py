@@ -20,7 +20,7 @@ if __name__ == "__main__":
     z_alpha = stats.norm.ppf(1 - alpha/2)/math.sqrt(n)
     lower = []
     upper = []
-    print('-------------------OPTIMIZADO-------------------------')
+    print('-------------------CONTROL-------------------------')
     t2_start = perf_counter()
     for i in range(0,n):
       data = broadie_glasserman_optimized(b = b,N = N,T = T,s0 = s0,K = K,sigma = sigma,r = r,option_type = 'C',variance_reduction=True)
