@@ -1,4 +1,5 @@
 #include <bits/stdc++.h>
+#include <future>
 #include "helper.h"
 #include "sample.h"
 
@@ -6,18 +7,20 @@
 #define sTheta 1
 #define bTheta 2
 
-pair<double, double> broadie_glasserman_optimized(const int b, int N, double T, double s0, double K, double sigma, double r, bool option_type, bool variance_reduction = false)
+typedef vector<vector<vector<double>>> matrix;
+
+void compute_parallel(matrix &dynamic_matrix, const int b, int N, double T, double s0, double K, double sigma, double r, bool option_type, bool variance_reduction = false)
 {
+    N = N - 1;
     double discount_rate = exp(-r * T / N);
     double dt = T / N;
     double val;
+
     double sq_dt = sqrt(dt);
     random_device rd;
     mt19937 gen(rd());
     normal_distribution<> d(0, sq_dt);
 
-    // type deph branch
-    vector<vector<vector<double>>> dynamic_matrix(3, vector<vector<double>>(N + 1, vector<double>(b, 0)));
     vector<int> index_vector(N + 1, 0);
     dynamic_matrix[value][0][0] = s0;
 
@@ -25,6 +28,7 @@ pair<double, double> broadie_glasserman_optimized(const int b, int N, double T, 
     {
         dynamic_matrix[value][j][0] = generate_new_sample(dynamic_matrix[value][j - 1][0], dt, sigma, r, gen, d);
     }
+
     int step = N;
     while (step >= 0)
     {
@@ -85,7 +89,6 @@ pair<double, double> broadie_glasserman_optimized(const int b, int N, double T, 
                 for (int k = step + 1; k < N; k++)
                 {
                     dynamic_matrix[value][k][0] = generate_new_sample(prev_val, dt, sigma, r, gen, d);
-
                     prev_val = dynamic_matrix[value][k][0];
                     index_vector[k] = 0;
                 }
@@ -106,7 +109,35 @@ pair<double, double> broadie_glasserman_optimized(const int b, int N, double T, 
             step -= 1;
         }
     }
-    pair<double, double> res = make_pair(dynamic_matrix[sTheta][0][0], dynamic_matrix[bTheta][0][0]);
+}
+
+pair<double, double> broadie_glasserman_parallel(const int b, int N, double T, double s0, double K, double sigma, double r, bool option_type, bool variance_reduction = false)
+{
+    // type deph branch
+    vector<matrix> dynamic_matrix(b, matrix(3, vector<vector<double>>(N, vector<double>(b, 0))));
+
+    vector<future<void>> futures;
+    for (int i = 0; i < b; i++)
+    {
+        futures.push_back(async(launch::async, compute_parallel, ref(dynamic_matrix[i]), b, N, T, s0, K, sigma, r, option_type, variance_reduction));
+    }
+
+    for (auto &f : futures)
+    {
+        f.get();
+    }
+    double discount_rate = exp(-r * T / N);
+    vector<double> children_sThetas;
+    vector<double> children_bThetas;
+
+    for (int i = 0; i < b; i++)
+    {
+        children_sThetas.push_back(dynamic_matrix[i][sTheta][0][0]);
+        children_bThetas.push_back(dynamic_matrix[i][bTheta][0][0]);
+    }
+    pair<double, double> res = make_pair(
+        calculate_sTheta(s0, children_sThetas, K, discount_rate, option_type),
+        calculate_bTheta(s0, children_bThetas, K, discount_rate, option_type));
 
     return res;
 }

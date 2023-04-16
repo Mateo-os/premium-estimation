@@ -11,10 +11,10 @@ double mean(vector<double> &v);
 
 double std_v(vector<double> &v);
 
-double excercise_option(double val, double K, string op_type);
+double excercise_option(double val, double K, bool op_type);
 
-double calculate_bTheta(double val, vector<double> &children_thetas, double K, double discount_rate, string op_type);
+double calculate_bTheta(double val, vector<double> &children_thetas, double K, double discount_rate, bool op_type);
 
-double calculate_sTheta(double val, vector<double> &children_thetas, double K, double discount_rate, string op_type);
+double calculate_sTheta(double val, vector<double> &children_thetas, double K, double discount_rate, bool op_type);
 
 #endif // HELPER_H

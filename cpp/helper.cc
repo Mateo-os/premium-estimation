@@ -25,9 +25,9 @@ double std_v(vector<double> &v)
     return sqrt(sum / (v.size() - 1));
 }
 
-double excercise_option(double val, double K, string op_type)
+double excercise_option(double val, double K, bool op_type)
 {
-    if (op_type == "C")
+    if (op_type)
     {
         return max(val - K, 0.0);
     }
@@ -37,14 +37,14 @@ double excercise_option(double val, double K, string op_type)
     }
 }
 
-double calculate_bTheta(double val, vector<double> &children_thetas, double K, double discount_rate, string op_type)
+double calculate_bTheta(double val, vector<double> &children_thetas, double K, double discount_rate, bool op_type)
 {
     double excercise_value = excercise_option(val, K, op_type);
     double holding_value = mean(children_thetas) * discount_rate;
     return max(excercise_value, holding_value);
 }
 
-double calculate_sTheta(double val, vector<double> &children_thetas, double K, double discount_rate, string op_type)
+double calculate_sTheta(double val, vector<double> &children_thetas, double K, double discount_rate, bool op_type)
 {
     double excercise_value = excercise_option(val, K, op_type);
     double children_sum = accumulate(children_thetas.begin(), children_thetas.end(), 0.0);
