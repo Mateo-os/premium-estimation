@@ -3,6 +3,7 @@
 #include "helper.h"
 #include "sample.h"
 #include "optimizado.h"
+#include "parallel.h"
 
 using namespace std;
 
@@ -22,13 +23,14 @@ int main()
 {
     vector<double> lower(n);
     vector<double> upper(n);
-    string name = "OPTIMIZADO";
+    string name = "PARALELIZADO";
     cout << "-------------------" << name << "-------------------------" << endl;
     auto t2_start = now();
     for (int i = 0; i < n; i++)
     {
-        auto data = broadie_glasserman_optimized(b, N, T, s0, K, sigma, r, "C", true);
-        cout << i << ": " << data.first << " " << data.second << endl;
+
+        auto data = broadie_glasserman_parallel(b, N, T, s0, K, sigma, r, true, true);
+        cout << i << ": (" << data.first << ", " << data.second << ")" << endl;
         lower[i] = data.first;
         upper[i] = data.second;
     }
