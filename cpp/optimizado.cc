@@ -11,6 +11,10 @@ pair<double, double> broadie_glasserman_optimized(const int b, int N, double T, 
     double discount_rate = exp(-r * T / N);
     double dt = T / N;
     double val;
+    double sq_dt = sqrt(dt);
+    random_device rd;
+    mt19937 gen(rd());
+    normal_distribution<> d(0, sq_dt);
 
     // type deph branch
     vector<vector<vector<double>>> dynamic_matrix(3, vector<vector<double>>(N + 1, vector<double>(b, 0)));
@@ -19,7 +23,7 @@ pair<double, double> broadie_glasserman_optimized(const int b, int N, double T, 
 
     for (int j = 1; j < N + 1; j++)
     {
-        dynamic_matrix[value][j][0] = generate_new_sample(dynamic_matrix[value][j - 1][0], dt, sigma, r);
+        dynamic_matrix[value][j][0] = generate_new_sample(dynamic_matrix[value][j - 1][0], dt, sigma, r, gen, d);
     }
     int step = N;
     while (step >= 0)
@@ -42,7 +46,7 @@ pair<double, double> broadie_glasserman_optimized(const int b, int N, double T, 
             }
             else
             {
-                dynamic_matrix[value][step][branch + 1] = generate_new_sample(father_val, dt, sigma, r);
+                dynamic_matrix[value][step][branch + 1] = generate_new_sample(father_val, dt, sigma, r, gen, d);
             }
             index_vector[step] += 1;
         }
@@ -74,13 +78,14 @@ pair<double, double> broadie_glasserman_optimized(const int b, int N, double T, 
                 }
                 else
                 {
-                    dynamic_matrix[value][step][branch + 1] = generate_new_sample(father_val, dt, sigma, r);
+                    dynamic_matrix[value][step][branch + 1] = generate_new_sample(father_val, dt, sigma, r, gen, d);
                 }
                 index_vector[step] += 1;
                 double prev_val = dynamic_matrix[value][step][branch + 1];
                 for (int k = step + 1; k < N; k++)
                 {
-                    dynamic_matrix[value][k][0] = generate_new_sample(prev_val, dt, sigma, r);
+                    dynamic_matrix[value][k][0] = generate_new_sample(prev_val, dt, sigma, r, gen, d);
+
                     prev_val = dynamic_matrix[value][k][0];
                     index_vector[k] = 0;
                 }
