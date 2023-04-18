@@ -3,7 +3,7 @@ import numpy as np
 from helpers import *
 from sample import *
 
-
+       #addsg
 #@title Metodo de Broadie-Glasserman con uso optimizado de memoria
   #Index vector muestra las elecciones tomadas en cada nivel de profundidad
   #ej: Con N = 3, b = 3 [0 , 0, 1, 2]
