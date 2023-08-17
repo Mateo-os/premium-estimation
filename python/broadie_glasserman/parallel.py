@@ -4,7 +4,6 @@ import multiprocessing
 from multiprocessing import shared_memory
 
 from helpers import *
-from sample import *
 
 def broadie_glasserman_individual_matrix(memory_data,b,N,T,s0,K,r,sigma,option_type,variance_reduction=True):
 

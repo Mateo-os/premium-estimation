@@ -28,3 +28,19 @@ def calculate_sTheta(val,children_thetas,K,discount_rate,op_type):
     value = child * discount_rate if excercise_value < associated_value else excercise_value
     estimated_payoffs.append(value)
   return np.mean(estimated_payoffs)
+
+
+# Estimar el precio de la opcion segun la matriz de diferencuas finitas
+def estimate_option_price(s0,K,T,grid):
+  S_steps, T_steps = grid.shape
+  ds = 2*K/ S_steps
+  dt = T/T_steps
+  index = int(s0/ds)
+  if index*ds == s0:
+    return grid[index, T_steps - 1]
+  v1 = grid[(index + 1)/ds, T_steps - 1]
+  v2 = grid[index, T_steps - 1]
+  
+  a2 = ((index + 1)*ds - s0)*dt 
+  a1 = (s0 - index*ds)*dt
+  return (v1*a1 + v2*a2)/(a1 + a2)

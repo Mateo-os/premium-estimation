@@ -1,7 +1,7 @@
 import math
 import numpy as np
 from helpers import *
-from sample import *
+
 
        #addsg
 #@title Metodo de Broadie-Glasserman con uso optimizado de memoria
