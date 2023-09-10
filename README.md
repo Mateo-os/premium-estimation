@@ -1,14 +1,23 @@
-### Implementacion del metodo de Broadie-Glaserman para intervalos de confianza para primas americanas
 
-### Como correr
+# Implementacion de metodos para estimacion de  primas americanas
 
+## Como correr
+
+Este repo tiene dos carpetas **CPP** y **PYTHON**, la carpeta con código en c++ solo tiene implementando el metodo de Broadie - Glaserman. La carpeta con código python tienen todos los metodos implementados.
+pip install -r requirements.txt
+
+### Python
+
+cd python
 pip install -r requirements.txt
 
 python main.py
 
+Se le presentara un menu para elegir que metodo utilizar y los parametros a seleccionar
+
 (Fua que facil)
 
-Los parametros son:
+Por ejemplo, para el metodo de Broadie - Glasserman los parametros son:
 
 - alpha = Confianza de que el precio real de la prima esta en el intervalo
 (Confianza alpha => P(prima en el intervalo) = 1 - alpha)
