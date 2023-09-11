@@ -7,8 +7,9 @@ from time import perf_counter
 
 from broadie_glasserman import broadie_glasserman_optimized, broadie_glasserman_parallel
 
-POSSIBLE_B = [4, 8, 16,24,36,48,50]
-POSSIBLE_N = [10,20,40,50,60,70,100]
+POSSIBLE_B = [4, 8, 16,24]
+POSSIBLE_N = [10,20,40,50]
+DATA_LEN = len(POSSIBLE_B)
 
 OPTION_DATA = {
     "N":4,
@@ -45,9 +46,9 @@ def broadie_glasserman_full(iterations,branches,parallel = True):
 
 
 if __name__ == "__main__":
-    data = np.zeros([2,2,5])
-    for pararell in range(2):
-        test_prompt = "Non parallel test" if not pararell else "Parralel test"
+    data = np.zeros([2,2,DATA_LEN,5])
+    for paralell in range(2):
+        test_prompt = "Non parallel test" if not paralell else "Parralel test"
         print(test_prompt)
         for fixed_val in range(2):
             test_prompt = "Fixed n test" if fixed_val else "Fixed b test"
@@ -55,16 +56,18 @@ if __name__ == "__main__":
             n = 50
             b = 16
             iterator = POSSIBLE_B if fixed_val else POSSIBLE_N
-            for val in iterator:
+            for i in range(DATA_LEN):
+                val = iterator[i]
                 n,b = (n,val) if fixed_val else (val,b)
                 test_prompt = f'braches: {b}' if fixed_val else f'iterations: {n}'
                 print(test_prompt)
-                res = broadie_glasserman_full(iterations=n,branches=b,parallel= pararell)
-                data[pararell,fixed_val][0] = val
-                data[pararell,fixed_val][1] = res[0]
-                data[pararell,fixed_val][2] = res[1]
-                data[pararell,fixed_val][3] = res[2][0]
-                data[pararell,fixed_val][4] = res[2][1]
-    for i in range(2):
-        df = pd.DataFrame(data[i])
-        df.to_csv(f"data_{i}.csv")
+                res = broadie_glasserman_full(iterations=n,branches=b,parallel= paralell)
+                data[paralell,fixed_val,i,0] = val
+                data[paralell,fixed_val,i,1] = res[0]
+                data[paralell,fixed_val,i,2] = res[1]
+                data[paralell,fixed_val,i,3] = res[2][0]
+                data[paralell,fixed_val,i,4] = res[2][1]
+
+            df = pd.DataFrame(data[paralell,fixed_val])
+            csv_name = ("non " if paralell else "") + f"paralell_{fixed_val}.csv"
+            df.to_csv(csv_name)

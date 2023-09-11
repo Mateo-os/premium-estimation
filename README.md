@@ -30,4 +30,4 @@ Por ejemplo, para el metodo de Broadie - Glasserman los parametros son:
 - n: La cantidad de simulaciones
 - T: Tiempo de expiracion, en años de la opcion
 
-Con los parametros que estan hardcodeados (T=1,s0=100,K=100,sigma=0.1,r=0.05,option_type=C) la prima es 6.804957708822144
+Con los parametros que estan hardcodeados (T=1,s0=100,K=100,sigma=0.1,r=0.05,option_type=C) la prima es            6.8049
