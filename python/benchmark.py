@@ -7,8 +7,8 @@ from time import perf_counter
 
 from broadie_glasserman import broadie_glasserman_optimized, broadie_glasserman_parallel
 
-POSSIBLE_B = [4, 8, 16,24]
-POSSIBLE_N = [10,20,40,50]
+POSSIBLE_B = [4,  8, 16,32,50, 64, 80, 100,150]
+POSSIBLE_N = [10, 30,50,70,100,150,200,250,300]
 DATA_LEN = len(POSSIBLE_B)
 
 OPTION_DATA = {
@@ -42,32 +42,42 @@ def broadie_glasserman_full(iterations,branches,parallel = True):
     sstd = np.std(lower)
     bstd = np.std(upper)
     interval = (max(max(s0 - K,0), sTheta -  sstd * z_alpha ), bTheta + bstd * z_alpha )
-    return (sTheta, bTheta, interval)
+    return (sTheta, sstd, bTheta, bstd, interval)
 
 
 if __name__ == "__main__":
-    data = np.zeros([2,2,DATA_LEN,5])
-    for paralell in range(2):
-        test_prompt = "Non parallel test" if not paralell else "Parralel test"
+    data = np.zeros([2,2,DATA_LEN, 7])
+    paralell = 1
+    test_prompt = "Non parallel test" if not paralell else "Parralel test"
+    print(test_prompt)
+    fixed_val = 1
+    test_prompt = "Fixed n test" if fixed_val else "Fixed b test"
+    print(test_prompt)
+    n = 50
+    b = 16
+    iterator = POSSIBLE_B if fixed_val else POSSIBLE_N
+    for i in range(DATA_LEN):
+        val = iterator[i]
+        n,b = (n,val) if fixed_val else (val,b)
+        test_prompt = f'branches: {b}' if fixed_val else f'iterations: {n}'
         print(test_prompt)
-        for fixed_val in range(2):
-            test_prompt = "Fixed n test" if fixed_val else "Fixed b test"
-            print(test_prompt)
-            n = 50
-            b = 16
-            iterator = POSSIBLE_B if fixed_val else POSSIBLE_N
-            for i in range(DATA_LEN):
-                val = iterator[i]
-                n,b = (n,val) if fixed_val else (val,b)
-                test_prompt = f'braches: {b}' if fixed_val else f'iterations: {n}'
-                print(test_prompt)
-                res = broadie_glasserman_full(iterations=n,branches=b,parallel= paralell)
-                data[paralell,fixed_val,i,0] = val
-                data[paralell,fixed_val,i,1] = res[0]
-                data[paralell,fixed_val,i,2] = res[1]
-                data[paralell,fixed_val,i,3] = res[2][0]
-                data[paralell,fixed_val,i,4] = res[2][1]
+        res = broadie_glasserman_full(iterations=n,branches=b,parallel= paralell)
+        data[paralell,fixed_val,i,0] = val
+        data[paralell,fixed_val,i,1] = res[0]
+        data[paralell,fixed_val,i,2] = res[1]
+        data[paralell,fixed_val,i,3] = res[2]
+        data[paralell,fixed_val,i,4] = res[3]
+        data[paralell,fixed_val,i,5] = res[4][0]
+        data[paralell,fixed_val,i,6] = res[4][1]
 
-            df = pd.DataFrame(data[paralell,fixed_val])
-            csv_name = ("non " if paralell else "") + f"paralell_{fixed_val}.csv"
-            df.to_csv(csv_name)
+    df = pd.DataFrame(data[paralell,fixed_val])
+    non_fixed_val = 'b' if fixed_val else 'n'
+    csv_name = f"{'non_' if not paralell else ''}paralell_fixed_{non_fixed_val}.csv"
+    header = [ non_fixed_val,
+                "lower estimator",
+                "lower estimator variance",
+                "upper estimator",
+                "upper estimator variance",
+                "lower bound",
+                "upper bound"]
+    df.to_csv(csv_name,header=header)
