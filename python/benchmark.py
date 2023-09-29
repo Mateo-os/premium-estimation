@@ -7,8 +7,8 @@ from time import perf_counter
 
 from broadie_glasserman import broadie_glasserman_optimized, broadie_glasserman_parallel
 
-POSSIBLE_B = [4,  8, 16,32,50, 64, 80, 100,150]
-POSSIBLE_N = [10, 30,50,70,100,150,200,250,300]
+POSSIBLE_B = [4,  8, 16,32,50]
+POSSIBLE_N = [10, 30,50,70,100]
 DATA_LEN = len(POSSIBLE_B)
 
 OPTION_DATA = {
@@ -46,7 +46,7 @@ def broadie_glasserman_full(iterations,branches,parallel = True):
 
 
 if __name__ == "__main__":
-    data = np.zeros([2,2,DATA_LEN, 7])
+    data = np.zeros([2,2,DATA_LEN, 8])
     paralell = 1
     test_prompt = "Non parallel test" if not paralell else "Parralel test"
     print(test_prompt)
@@ -61,7 +61,9 @@ if __name__ == "__main__":
         n,b = (n,val) if fixed_val else (val,b)
         test_prompt = f'branches: {b}' if fixed_val else f'iterations: {n}'
         print(test_prompt)
+        t_start = perf_counter()
         res = broadie_glasserman_full(iterations=n,branches=b,parallel= paralell)
+        t_end = perf_counter()
         data[paralell,fixed_val,i,0] = val
         data[paralell,fixed_val,i,1] = res[0]
         data[paralell,fixed_val,i,2] = res[1]
@@ -69,7 +71,7 @@ if __name__ == "__main__":
         data[paralell,fixed_val,i,4] = res[3]
         data[paralell,fixed_val,i,5] = res[4][0]
         data[paralell,fixed_val,i,6] = res[4][1]
-
+        data[paralell,fixed_val,i,7] = t_end - t_start
     df = pd.DataFrame(data[paralell,fixed_val])
     non_fixed_val = 'b' if fixed_val else 'n'
     csv_name = f"{'non_' if not paralell else ''}paralell_fixed_{non_fixed_val}.csv"
@@ -79,5 +81,6 @@ if __name__ == "__main__":
                 "upper estimator",
                 "upper estimator variance",
                 "lower bound",
-                "upper bound"]
+                "upper bound",
+                "elapsed time"]
     df.to_csv(csv_name,header=header)
