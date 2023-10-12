@@ -53,8 +53,8 @@ if __name__ == "__main__":
     fixed_val = 1
     test_prompt = "Fixed n test" if fixed_val else "Fixed b test"
     print(test_prompt)
-    n = 50
-    b = 16
+    n = 100
+    b = 30
     iterator = POSSIBLE_B if fixed_val else POSSIBLE_N
     for i in range(DATA_LEN):
         val = iterator[i]
@@ -74,7 +74,8 @@ if __name__ == "__main__":
         data[paralell,fixed_val,i,7] = t_end - t_start
     df = pd.DataFrame(data[paralell,fixed_val])
     non_fixed_val = 'b' if fixed_val else 'n'
-    csv_name = f"{'non_' if not paralell else ''}paralell_fixed_{non_fixed_val}.csv"
+    fixed_val = 'n' if fixed_val else 'b'
+    csv_name = f"{'non_' if not paralell else ''}paralell_fixed_{fixed_val}.csv"
     header = [ non_fixed_val,
                 "lower estimator",
                 "lower estimator variance",

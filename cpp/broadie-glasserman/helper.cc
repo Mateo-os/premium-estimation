@@ -6,7 +6,7 @@ using namespace std;
 double ppf(double alpha = 0.05, int n = 10)
 {
     boost::math::normal_distribution<> myNormal(0, 1);
-    return boost::math::quantile(myNormal, 1 - alpha / 2) / sqrt(n);
+    return boost::math::quantile(myNormal, 1.0 - alpha / 2.0) / sqrt(n);
 }
 
 double mean(vector<double> &v)
