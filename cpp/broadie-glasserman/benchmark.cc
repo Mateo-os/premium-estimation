@@ -10,9 +10,11 @@ namespace math = boost::math;
 using namespace std;
 
 // Constants
-const int DATA_LEN = 10;
-const int POSSIBLE_B[] = {4, 8, 10,16, 20,32,50,80,100,150};
-const int POSSIBLE_N[] = {10, 30, 50, 70, 80,100,200,300,400,500};
+const int DATA_LEN = 5;
+const int POSSIBLE_B[] = {4, 8, 10,16, 20 };
+                        //32,50,80,100,150};
+const int POSSIBLE_N[] = {10, 30, 50, 70, 80};
+                        //,100,200,300,400,500};
 
 // Option data
 struct OptionData {
@@ -79,10 +81,14 @@ int main() {
     vector<vector<vector<vector<double>>>> data(2, vector<vector<vector<double>>>(2, vector<vector<double>>(DATA_LEN, vector<double>(8))));
     int iterator[DATA_LEN];
     int parallel = 1;
-    string test_prompt = !parallel ? "Non parallel test" : "Parallel test";
+    string test_prompt = parallel ? "Parallel test" : "Non parallel test";
     cout << test_prompt << endl;
     for(int fixed_val = 0; fixed_val < 2; fixed_val++){
-        test_prompt = !fixed_val ? "Fixed n test" : "Fixed b test";
+        /*FIXED_VAL:
+        0 -> fixed b test
+        1 -> fixed n test
+        */
+        test_prompt = fixed_val ? "Fixed n test" : "Fixed b test";
         cout << test_prompt << endl;
         int n = 50;
         int b = 16;
@@ -93,13 +99,12 @@ int main() {
 
         for (int i = 0; i < DATA_LEN; ++i) {
             int val = iterator[i];
-            if (!fixed_val) {
+            if (fixed_val) 
+                b = val; 
+            else 
                 n = val;
-            } else {
-                b = val;
-            }
-            test_prompt = fixed_val ? "Branches: " : "Iterations: ";
-            cout << test_prompt << (fixed_val ? b : n) << endl;
+            test_prompt = fixed_val ? "Branches " : "Iterations: ";
+            cout << test_prompt << val << endl;
             chrono::high_resolution_clock::time_point t_start = chrono::high_resolution_clock::now();
             vector<double> res = broadie_glasserman_full(n, b, parallel);
             chrono::high_resolution_clock::time_point t_end = chrono::high_resolution_clock::now();
@@ -114,9 +119,9 @@ int main() {
         }
 
         ofstream outputFile;
-        string fixd_val = !fixed_val ? "b" : "n";
+        string fixd_val = fixed_val ? "n" : "b";
         string non_fixed_val = fixed_val ? "b" : "n";
-        string csv_name = (parallel ? "" : "non_");
+        string csv_name = parallel ? "" : "non_";
         csv_name = csv_name  + "parallel_fixed_" + fixd_val + ".csv";
         outputFile.open(csv_name);
 
