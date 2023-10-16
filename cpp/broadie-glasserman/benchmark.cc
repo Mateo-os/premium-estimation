@@ -29,6 +29,7 @@ struct OptionData {
     double alpha;
 };
 
+//test 
 OptionData OPTION_DATA = {
     4,      // N
     1.0,    // T
