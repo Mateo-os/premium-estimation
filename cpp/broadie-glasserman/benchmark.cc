@@ -10,11 +10,9 @@ namespace math = boost::math;
 using namespace std;
 
 // Constants
-const int DATA_LEN = 5;
-const int POSSIBLE_B[] = {4, 8, 10,16, 20 };
-                        //32,50,80,100,150};
-const int POSSIBLE_N[] = {10, 30, 50, 70, 80};
-                        //,100,200,300,400,500};
+const int DATA_LEN = 14;
+const int POSSIBLE_B[] = {4, 8, 10,16, 20 ,32,50,80,100,150, 200, 250, 300,400};
+const int POSSIBLE_N[] = {10, 30, 50, 70, 80 ,200,300,400,500,600,700,800,900,1000};
 
 // Option data
 struct OptionData {
@@ -29,7 +27,7 @@ struct OptionData {
     double alpha;
 };
 
-//test 
+
 OptionData OPTION_DATA = {
     4,      // N
     1.0,    // T
@@ -79,7 +77,7 @@ vector<double> broadie_glasserman_full(int iterations, int branches, bool parall
 }
 
 int main() {
-    vector<vector<vector<vector<double>>>> data(2, vector<vector<vector<double>>>(2, vector<vector<double>>(DATA_LEN, vector<double>(8))));
+    vector<vector<vector<vector<double>>>> data(2, vector<vector<vector<double>>>(2, vector<vector<double>>(DATA_LEN, vector<double>(9))));
     int iterator[DATA_LEN];
     int parallel = 1;
     string test_prompt = parallel ? "Parallel test" : "Non parallel test";
@@ -91,8 +89,8 @@ int main() {
         */
         test_prompt = fixed_val ? "Fixed n test" : "Fixed b test";
         cout << test_prompt << endl;
-        int n = 50;
-        int b = 16;
+        int N = 80;
+        int B = 16;
         if(fixed_val)
             copy(begin(POSSIBLE_B), end(POSSIBLE_B), begin(iterator));
         else
@@ -100,10 +98,11 @@ int main() {
 
         for (int i = 0; i < DATA_LEN; ++i) {
             int val = iterator[i];
+            int n,b;
             if (fixed_val) 
-                b = val; 
+                n = N,b = val; 
             else 
-                n = val;
+                n = val, b = B;
             test_prompt = fixed_val ? "Branches " : "Iterations: ";
             cout << test_prompt << val << endl;
             chrono::high_resolution_clock::time_point t_start = chrono::high_resolution_clock::now();
@@ -116,7 +115,8 @@ int main() {
             data[parallel][fixed_val][i][4] = res[3];
             data[parallel][fixed_val][i][5] = res[4];
             data[parallel][fixed_val][i][6] = res[5];
-            data[parallel][fixed_val][i][7] = chrono::duration_cast<chrono::microseconds>(t_end - t_start).count() / 1e6;
+            data[parallel][fixed_val][i][7] = res[5] - res[4];
+            data[parallel][fixed_val][i][8] = chrono::duration_cast<chrono::microseconds>(t_end - t_start).count() / 1e6;
         }
 
         ofstream outputFile;
@@ -126,14 +126,14 @@ int main() {
         csv_name = csv_name  + "parallel_fixed_" + fixd_val + ".csv";
         outputFile.open(csv_name);
 
-        string header = non_fixed_val + ",lower estimator,lower estimator variance,upper estimator,upper estimator variance,lower bound,upper bound,elapsed time";
+        string header = non_fixed_val + ",lower estimator,lower estimator variance,upper estimator,upper estimator variance,lower bound,upper bound,interval size,elapsed time";
         outputFile << header << endl;
 
         for (int i = 0; i < DATA_LEN; ++i) {
             for (int j = 0; j < 8; ++j) {
                 outputFile << data[parallel][fixed_val][i][j] << ",";
             }
-            outputFile << endl;
+            outputFile << data[parallel][fixed_val][i][8] << endl;
         }
 
         outputFile.close();
