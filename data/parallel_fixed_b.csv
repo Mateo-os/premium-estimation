@@ -1,4 +1,4 @@
-n,lower estimator,lower estimator variance,upper estimator,upper estimator variance,lower bound,upper bound,interval size,elapsed time
+n,subestimador,varianza del subestimador,sobreestimador,varianza del sobreestimador,cota inferior,cota superior,tamaño del intervalo,tiempo de cómputo (s)
 10,6.71117,0.231518,6.71722,0.232042,6.56768,6.86104,0.293359,0.020239
 30,6.79321,0.331346,6.79931,0.33199,6.67464,6.9181,0.243463,0.059536
 50,6.77694,0.225948,6.78325,0.226808,6.71431,6.84611,0.131806,0.076938
