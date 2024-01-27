@@ -1,7 +1,7 @@
 
-CPP_FILES :=  sample.cc helper.cc optimizado.cc parallel.cc benchmark.cc
-H_FILES := sample.h helper.h optimizado.h parallel.h
-TARGET := benchmark.o
+CPP_FILES :=  sample.cc helper.cc method.cc
+H_FILES := sample.h helper.h 
+TARGET := method.o
 CXXFLAGS := -std=c++14 -Wall -Wextra  -pedantic  -O3
 
 
