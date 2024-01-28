@@ -1,8 +1,9 @@
 #include <bits/stdc++.h>
 #include <future>
 #include <iostream>
-#include "sample.h"
+#include <chrono>
 #include "helper.h"
+#include "sample.h"
 #include "polyRegression.h"
 
 random_device rd;
@@ -10,19 +11,20 @@ mt19937 gen(rd());
 
 const int P_ORDER = 2;
 
-typedef vector<vector<vector<double>>> matrix;
+typedef vector<vector<double>> matrix;
 
 double calculate_polinomial(int order, vector<double> &coeffs,double x){
     double result = 0;
-    for(int i = 0; i<order + 1; i++){
-        result += pow(x,i) * coef[i];
+    for(int i = 0; i <= order ; i++){
+        result += pow(x,i) * coeffs[i];
     }
     return result;
 }
 
-void generate_stock(int N,int n,double r,double s0,double T, double sigma, vector &stock){
+void generate_stock(int N,int n,double r,double s0,double T, double sigma, vector<vector<double>> &stock){
     double dt = T/n;
     double sq_dt = sqrt(dt);
+    normal_distribution<> d(0, sq_dt);
     for(int i = 0; i < N; i++){
         stock[i][0] = s0;
         for(int j = 1; j < n+1; j++)
@@ -32,24 +34,25 @@ void generate_stock(int N,int n,double r,double s0,double T, double sigma, vecto
     return;
 }
 
-float longstaff_schwartz(int N, int n, double r, double s0, double K,double T, double sigma,bool type){
+double longstaff_schwartz(int N, int n, double r, double s0, double K,double T, double sigma,bool type){
     matrix cash_flow(N,vector<double>(n+1,0));
     matrix stock(N,vector<double>(n+1,0));
-    generate_stock(N,n,r,s0,T,sigma,matrix)
+    generate_stock(N,n,r,s0,T,sigma,stock);
     for(int i = 0; i < N; i++)
         cash_flow[i][n] = excercise_option(stock[i][n],K,type);
 
     float discount_rate = exp(-r * T/n);
 
     set<int> indexes;
-    set<double> x_vector;
-    set<double> y_vector;
     set<int>::iterator itr;
+    multiset<double> x_vector;
+    multiset<double> y_vector;
     vector<double> coeffs;
+    bool condition = type ? stock[i][j] > K : K > stock;
     PolynomialRegression<double> fitter;
-    for(int j = n-1; i >= 0; j--){
+    for(int j = n-1; j >= 1; j--){
         for(int i = 0;i<N;i++){
-            if( K > stock[i][j])
+            if( condition)
                 indexes.insert(i);
         }
 
@@ -60,39 +63,63 @@ float longstaff_schwartz(int N, int n, double r, double s0, double K,double T, d
             for (itr = indexes.begin(); itr != indexes.end(); ++itr){
                 int i = *itr;
                 int k = j+1;
-                while(k< n+1 && cash_flow[i][k] == 0)
+                while((k< n+1) && (cash_flow[i][k] == 0.0))
                     k++;
-                y = (k < n +1) ? cash_flow[i][k] * pow(discount_rate,k - j) : 0;
+                double y = 0;
+                if (k < n +1)
+                    y = cash_flow[i][k] * pow(discount_rate,k - j);
                 x_vector.insert(stock[i][j]);
                 y_vector.insert(y);
             }
-        }
-
-        fitter.fitIt(
-            vector<double>(x_vector.begin(),x_vector.end()),
-            vector<double>(y_vector.begin(),y_vector.end()),
-            P_ORDER,
-            coeffs
-        );
-
-        for(itr = indexes.begin(); itr != indexes.end(); ++itr){
-            i = *itr
-            double excercise_value = excercise_option(stock[i][j],K,type);
-            double continue_value = calculate_polinomial(P_ORDER,coeffs,stock[i][j]);
-            if(continue_value < excercise_value){
-                cash_flow[i][j] = excercise_value;
-                fill(cash_flow[i].begin() + j+1,cash_flow.end(),0);
+            fitter.fitIt(
+                vector<double>(x_vector.begin(),x_vector.end()),
+                vector<double>(y_vector.begin(),y_vector.end()),
+                P_ORDER,
+                coeffs
+            );
+            for(itr = indexes.begin(); itr != indexes.end(); ++itr){
+                int i = *itr;
+                double excercise_value = excercise_option(stock[i][j],K,type);
+                double continue_value = calculate_polinomial(P_ORDER,coeffs,stock[i][j]);
+                if(continue_value < excercise_value){
+                    cash_flow[i][j] = excercise_value;
+                    fill(cash_flow[i].begin() + j+1,cash_flow[i].end(),0.0);
+                }
             }
-        }
 
+        }
         indexes.clear();
         x_vector.clear();
         y_vector.clear();
         
     }
-    return 0.0;
+
+    vector<double> discounted_values(N,0);
+    for(int i =0; i<N;i++){
+        int index = 0;
+        for(int j = 1;j<n+1;j++){
+            if(cash_flow[i][j] != 0){
+                index = j;
+                break;
+            }
+        }
+        discounted_values[i] = cash_flow[i][index] * pow(discount_rate,index) ;
+    }
+    double X = mean(discounted_values);
+    double excercise_value = excercise_option(s0,K,type); 
+    return max(excercise_value,X);
 }
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    double s0 = 36,r = 0.06, T = 1,sigma = 0.2;
+    int n = 50,N = 20000;
+    bool type = false;
+    double POSSIBLE_STRIKES[5] = {36, 38, 40, 42, 44};
+    vector<vector<double>> puts(5,vector<double>(2,0));
+    for(int i = 0; i<5;i++){
+        double K = POSSIBLE_STRIKES[i];
+        double ls = longstaff_schwartz(N,n,r,s0,K,T,sigma,type);
+        cout << K << ' ' << ls << endl; 
+    }
+
     return 0;
 }

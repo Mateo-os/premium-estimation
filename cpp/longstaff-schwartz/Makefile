@@ -1,8 +1,8 @@
 
 CPP_FILES :=  sample.cc helper.cc method.cc
-H_FILES := sample.h helper.h polyRefression.h
+H_FILES := sample.h helper.h 
 TARGET := method.o
-CXXFLAGS := -std=c++14 -Wall -Wextra  -pedantic  -O3
+CXXFLAGS := -std=c++14 -Wall -Wextra  -pedantic  -O2
 
 
 
@@ -14,6 +14,4 @@ run: build
 
 clean:
 	rm -f $(TARGET)
-
-
 
