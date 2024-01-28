@@ -3,10 +3,22 @@
 #include <iostream>
 #include "sample.h"
 #include "helper.h"
+#include "polyRegression.h"
+
 random_device rd;
 mt19937 gen(rd());
 
+const int P_ORDER = 2;
+
 typedef vector<vector<vector<double>>> matrix;
+
+double calculate_polinomial(int order, vector<double> &coeffs,double x){
+    double result = 0;
+    for(int i = 0; i<order + 1; i++){
+        result += pow(x,i) * coef[i];
+    }
+    return result;
+}
 
 void generate_stock(int N,int n,double r,double s0,double T, double sigma, vector &stock){
     double dt = T/n;
@@ -19,6 +31,7 @@ void generate_stock(int N,int n,double r,double s0,double T, double sigma, vecto
     }
     return;
 }
+
 float longstaff_schwartz(int N, int n, double r, double s0, double K,double T, double sigma,bool type){
     matrix cash_flow(N,vector<double>(n+1,0));
     matrix stock(N,vector<double>(n+1,0));
@@ -32,6 +45,8 @@ float longstaff_schwartz(int N, int n, double r, double s0, double K,double T, d
     set<double> x_vector;
     set<double> y_vector;
     set<int>::iterator itr;
+    vector<double> coeffs;
+    PolynomialRegression<double> fitter;
     for(int j = n-1; i >= 0; j--){
         for(int i = 0;i<N;i++){
             if( K > stock[i][j])
@@ -52,8 +67,24 @@ float longstaff_schwartz(int N, int n, double r, double s0, double K,double T, d
                 y_vector.insert(y);
             }
         }
-        //curve_fit(x_vector,y_vector);
-        for()
+
+        fitter.fitIt(
+            vector<double>(x_vector.begin(),x_vector.end()),
+            vector<double>(y_vector.begin(),y_vector.end()),
+            P_ORDER,
+            coeffs
+        );
+
+        for(itr = indexes.begin(); itr != indexes.end(); ++itr){
+            i = *itr
+            double excercise_value = excercise_option(stock[i][j],K,type);
+            double continue_value = calculate_polinomial(P_ORDER,coeffs,stock[i][j]);
+            if(continue_value < excercise_value){
+                cash_flow[i][j] = excercise_value;
+                fill(cash_flow[i].begin() + j+1,cash_flow.end(),0);
+            }
+        }
+
         indexes.clear();
         x_vector.clear();
         y_vector.clear();

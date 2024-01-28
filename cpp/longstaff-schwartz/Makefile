@@ -1,6 +1,6 @@
 
 CPP_FILES :=  sample.cc helper.cc method.cc
-H_FILES := sample.h helper.h 
+H_FILES := sample.h helper.h polyRefression.h
 TARGET := method.o
 CXXFLAGS := -std=c++14 -Wall -Wextra  -pedantic  -O3
 
