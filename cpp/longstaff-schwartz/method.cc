@@ -13,7 +13,7 @@ const int P_ORDER = 2;
 
 typedef vector<vector<double>> matrix;
 
-double calculate_polinomial(int order, vector<double> &coeffs,double x){
+double calculate_polynomial(int order, vector<double> &coeffs,double x){
     double result = 0;
     for(int i = 0; i <= order ; i++){
         result += pow(x,i) * coeffs[i];
@@ -22,7 +22,7 @@ double calculate_polinomial(int order, vector<double> &coeffs,double x){
 }
 
 void generate_stock(int N,int n,double r,double s0,double T, double sigma, vector<vector<double>> &stock){
-    double dt = T/n;
+    double dt = T/static_cast<double>(n);
     double sq_dt = sqrt(dt);
     normal_distribution<> d(0, sq_dt);
     for(int i = 0; i < N; i++){
@@ -41,35 +41,34 @@ double longstaff_schwartz(int N, int n, double r, double s0, double K,double T, 
     for(int i = 0; i < N; i++)
         cash_flow[i][n] = excercise_option(stock[i][n],K,type);
 
-    float discount_rate = exp(-r * T/n);
+    float discount_rate = exp(-r * T/static_cast<double>(n));
 
-    set<int> indexes;
-    set<int>::iterator itr;
-    multiset<double> x_vector;
-    multiset<double> y_vector;
+    vector<int> indexes;
+    vector<double> x_vector;
+    vector<double> y_vector;
     vector<double> coeffs;
-    bool condition = type ? stock[i][j] > K : K > stock;
     PolynomialRegression<double> fitter;
     for(int j = n-1; j >= 1; j--){
         for(int i = 0;i<N;i++){
-            if( condition)
-                indexes.insert(i);
+            bool condition = type ? stock[i][j] > K : K > stock[i][j];
+            if(condition)
+                indexes.push_back(i);
         }
 
-        if(indexes.empty()){
+        if(!indexes.size()){
             for(int i = 0; i < N; i++)
                 cash_flow[i][j] = 0;
         } else{
-            for (itr = indexes.begin(); itr != indexes.end(); ++itr){
-                int i = *itr;
+            for (int itr = 0; itr < indexes.size(); ++itr){
+                int i = indexes[itr];
                 int k = j+1;
                 while((k< n+1) && (cash_flow[i][k] == 0.0))
                     k++;
                 double y = 0;
                 if (k < n +1)
                     y = cash_flow[i][k] * pow(discount_rate,k - j);
-                x_vector.insert(stock[i][j]);
-                y_vector.insert(y);
+                x_vector.push_back(stock[i][j]);
+                y_vector.push_back(y);
             }
             fitter.fitIt(
                 vector<double>(x_vector.begin(),x_vector.end()),
@@ -77,10 +76,10 @@ double longstaff_schwartz(int N, int n, double r, double s0, double K,double T, 
                 P_ORDER,
                 coeffs
             );
-            for(itr = indexes.begin(); itr != indexes.end(); ++itr){
-                int i = *itr;
+            for(int itr = 0; itr < indexes.size(); ++itr){
+                int i = indexes[itr];
                 double excercise_value = excercise_option(stock[i][j],K,type);
-                double continue_value = calculate_polinomial(P_ORDER,coeffs,stock[i][j]);
+                double continue_value = calculate_polynomial(P_ORDER,coeffs,stock[i][j]);
                 if(continue_value < excercise_value){
                     cash_flow[i][j] = excercise_value;
                     fill(cash_flow[i].begin() + j+1,cash_flow[i].end(),0.0);
