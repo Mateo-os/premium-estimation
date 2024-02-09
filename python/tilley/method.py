@@ -5,6 +5,8 @@ from helpers import *
 
 
 def tilley(P, Q, s0, K, sigma, r, T, N, op_type, sharp_boundary=True):
+    if op_type not in "CP":
+        return
     R = P * Q
     dt = T / N
     discount_rate = math.exp(-r * dt)
@@ -21,7 +23,7 @@ def tilley(P, Q, s0, K, sigma, r, T, N, op_type, sharp_boundary=True):
     for step in reversed(range(0, N - 1)):
         sort_key = lambda x: stocks[x, step]["val"]
         # Ordenamos en cada paso los valores de la trayectoria de mayor a menor
-        indexes = np.array(sorted(indexes, key=sort_key, reverse=True))
+        indexes = np.array(sorted(indexes, key=sort_key, reverse=(op_type == "P")))
         tentative_indicator = np.full(shape=[R], fill_value=-1)
         holding_values = np.zeros(Q)
 
