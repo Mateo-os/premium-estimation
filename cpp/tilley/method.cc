@@ -38,8 +38,8 @@ double tilley(int P, int Q, double s0, double K, double sigma, double r, double 
 
     for (int step = N - 2; step >= 0; --step) {
         cout << step << endl;
-        auto sort_key = [&](int x) { return stocks[x][step].val; };
-        std::sort(indexes.begin(), indexes.end(), [&](int a, int b) { return sort_key(a) > sort_key(b); });
+        auto key = [&](int x) { return stocks[x][step].val; };
+        std::sort(indexes.begin(), indexes.end(), [&](int a, int b) { return op_type? key(a) < key(b) : key(a) > key(b); });
         vector<int> tentative_indicator(R, -1);
         vector<double> holding_values(Q);
 
