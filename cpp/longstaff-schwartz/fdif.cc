@@ -70,19 +70,8 @@ vector<vector<double>> explicit_finite_difference(double K, double T, double sig
     return grid;
 }
 
-int main() {
-    // Example usage
-    double K = 100;
-    double T = 1;
-    double sigma = 0.1;
-    double r = 0.05;
-    int asset_steps = 1000;
-    int op_type = false;
-    bool early_exercise = true;
 
-    vector<vector<double>> result = explicit_finite_difference(K, T, sigma, r, asset_steps, op_type, early_exercise);
-    double price = estimate_option_price(100,K,T,result);
-    cout << "Price: " << price << endl;
-    cout << "Black Scholes: " << black_scholes(r,100,K,T,sigma,false) << endl;
-    return 0;
+double full_finite_diference(double S0,double K, double T, double sigma, double r, int asset_steps, bool op_type, bool early_exercise=true){
+    vector<vector<double>> grid = explicit_finite_difference(K,T,sigma,r,asset_steps,op_type,early_exercise);
+    return estimate_option_price(S0, K, T, grid);
 }

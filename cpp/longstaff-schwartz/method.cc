@@ -54,7 +54,7 @@ void generate_stock(int N,int n,double r,double s0,double T, double sigma,bool v
     return;
 }
 
-double longstaff_schwartz(int N, int n, double r, double s0, double K,double T, double sigma,bool type, bool variance_reduction = false){
+double longstaff_schwartz(int N, int n, double r, double s0, double K,double T, double sigma,bool type, bool variance_reduction = true){
     matrix cash_flow(N,vector<double>(n+1,0));
     matrix stock(N,vector<double>(n+1,0));
     if(variance_reduction && N%2 == 1){
@@ -131,3 +131,4 @@ double longstaff_schwartz(int N, int n, double r, double s0, double K,double T, 
     double excercise_value = excercise_option(s0,K,type); 
     return max(excercise_value,X);
 }
+
