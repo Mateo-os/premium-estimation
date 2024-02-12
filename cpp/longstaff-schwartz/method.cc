@@ -13,7 +13,7 @@ const int P_ORDER = 2;
 
 typedef vector<vector<double>> matrix;
 
-double generate_negative_sample(double prev_anthi,double anthi, double sample, double dt){
+double generate_negative_sample(double prev_anthi,double anthi, double sample, double dt, double sigma, double r){
     double anthi_exponential_term = anthi/(prev_anthi * exp((r - (sigma * sigma) / 2) * dt));
     return sample * exp((r - (sigma * sigma)/2) * dt)/anthi_exponential_term;
 }
@@ -41,7 +41,7 @@ void generate_stock(int N,int n,double r,double s0,double T, double sigma,bool v
             int anthi = (N - 1) - i;
 
             for(int j = 1; j < n+1; j++)
-                stock[i][j] = generate_negative_sample(stock[anthi][j - 1],stock[anthi][j],stock[i][j-1],r,dt);
+                stock[i][j] = generate_negative_sample(stock[anthi][j - 1],stock[anthi][j],stock[i][j-1],dt,sigma,r);
         }
         return;
     }
@@ -60,7 +60,7 @@ double longstaff_schwartz(int N, int n, double r, double s0, double K,double T, 
     if(variance_reduction && N%2 == 1){
         throw("N must be even for variance reduction");
     }
-    generate_stock(N,n,r,s0,T,sigma,variance_reduction,variance_reduction,stock);
+    generate_stock(N,n,r,s0,T,sigma,variance_reduction, stock);
     for(int i = 0; i < N; i++)
         cash_flow[i][n] = excercise_option(stock[i][n],K,type);
 
@@ -82,7 +82,7 @@ double longstaff_schwartz(int N, int n, double r, double s0, double K,double T, 
             for(int i = 0; i < N; i++)
                 cash_flow[i][j] = 0;
         } else{
-            for (int itr = 0; itr < indexes.size(); ++itr){
+            for (vector<int>::size_type itr = 0; itr < indexes.size(); ++itr){
                 int i = indexes[itr];
                 int k = j+1;
                 while((k< n+1) && (cash_flow[i][k] == 0.0))
@@ -99,7 +99,7 @@ double longstaff_schwartz(int N, int n, double r, double s0, double K,double T, 
                 P_ORDER,
                 coeffs
             );
-            for(int itr = 0; itr < indexes.size(); ++itr){
+            for(vector<int>::size_type itr = 0; itr < indexes.size(); ++itr){
                 int i = indexes[itr];
                 double excercise_value = excercise_option(stock[i][j],K,type);
                 double continue_value = calculate_polynomial(P_ORDER,coeffs,stock[i][j]);
@@ -130,19 +130,4 @@ double longstaff_schwartz(int N, int n, double r, double s0, double K,double T, 
     double X = mean(discounted_values);
     double excercise_value = excercise_option(s0,K,type); 
     return max(excercise_value,X);
-}
-
-int main() {
-    double s0 = 36,r = 0.06, T = 1,sigma = 0.2;
-    int n = 50,N = 20000;
-    bool type = false;
-    double POSSIBLE_STRIKES[5] = {36, 38, 40, 42, 44};
-    vector<vector<double>> puts(5,vector<double>(2,0));
-    for(int i = 0; i<5;i++){
-        double K = POSSIBLE_STRIKES[i];
-        double ls = longstaff_schwartz(N,n,r,s0,K,T,sigma,type,true);
-        cout << K << ' ' << ls << endl; 
-    }
-
-    return 0;
 }
