@@ -20,7 +20,7 @@ struct OptionData {
 };
 
 OptionData OPTION_DATA = {
-    1000, // n
+    5000, // n
     1.0,    // T
     100.0,  // K
     0.05,   // r
@@ -36,6 +36,7 @@ int main() {
     int POSIBBLE_Q[] = {100,200,400};
     double SIGMAS[] = {0.2,0.4};
     double TIMES[] = {1,2};
+    int TABLE_SIZE = (sizeof(INITIAL_PRICE) * sizeof(POSIBBLE_Q) * sizeof(TIMES) * sizeof(SIGMAS)) / (pow(sizeof(int),2) * pow(sizeof(double),2));
     int n = OPTION_DATA.n;
     double K = OPTION_DATA.K;
     double r = OPTION_DATA.r;
@@ -51,6 +52,7 @@ int main() {
                 double fdiff = full_finite_diference(s0,OPTION_DATA.K,T,sigma,r,STOCK_STEPS,option_type,true);
                 double b_s = black_scholes(r,s0,K,T,sigma,option_type);
                 for(int q = 0; q<3;q++){
+
                     int Q = POSIBBLE_Q[q];
                     int P = TRAYECTORIES/Q;
                     data[index][0] = s0;
@@ -74,7 +76,7 @@ int main() {
     outputFile.open("tilley.csv");
     string header = "S,sigma,T,P,Q, diferencias finitas,black-scholes,ejercicio temprano d.f.,tilley,ejercicio temprano tilley, d.f. - tilley";
     outputFile << header << endl;
-    for(int i = 0; i<60;i++){
+    for(int i = 0; i<TABLE_SIZE;i++){
         for(int j = 0;j<10;j++){
             outputFile << data[i][j] << ',';
         }
