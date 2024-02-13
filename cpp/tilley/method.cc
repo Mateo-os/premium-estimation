@@ -17,7 +17,7 @@ random_device rd;
 mt19937 gen(rd());
 
 
-double tilley(int P, int Q, double s0, double K, double sigma, double r, double T, int N, int op_type, bool sharp_boundary = true) {
+double tilley(int P, int Q, double s0, double K, double sigma, double r, double T, int N, int op_type, bool sharp_boundary ) {
     int R = P * Q;
     double dt = T / N;
     double discount_rate = exp(-r * dt);
@@ -37,7 +37,6 @@ double tilley(int P, int Q, double s0, double K, double sigma, double r, double 
     }
 
     for (int step = N - 2; step >= 0; --step) {
-        cout << step << endl;
         auto key = [&](int x) { return stocks[x][step].val; };
         std::sort(indexes.begin(), indexes.end(), [&](int a, int b) { return op_type? key(a) < key(b) : key(a) > key(b); });
         vector<int> tentative_indicator(R, -1);
@@ -116,20 +115,4 @@ double tilley(int P, int Q, double s0, double K, double sigma, double r, double 
         estimator += exp(-r * (step + 1) * dt) * val;
     }
     return estimator / R;
-}
-
-int main() {
-    // Example usage
-    int P = 1000;
-    int Q = 1000;
-    double s0 = 100;
-    double K = 105;
-    double sigma = 0.2;
-    double r = 0.05;
-    double T = 1;
-    int N = 100;
-    int op_type = 1;
-    double result = tilley(P, Q, s0, K, sigma, r, T, N, op_type);
-    std::cout << "Result: " << result << std::endl;
-    return 0;
 }

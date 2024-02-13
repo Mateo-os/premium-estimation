@@ -3,6 +3,24 @@
 
 using namespace std;
 
+
+double cdf(double x, double mean = 0, double std = 1){
+    boost::math::normal_distribution<> myNormal(mean, std);
+    return boost::math::cdf(myNormal,x);
+}
+
+double black_scholes(double r, double S0, double K,double T, double sigma, bool op_type){
+    double d1 = (log(S0/K) + (r + (sigma*sigma)/2)*T)/(sigma*sqrt(T));
+    double d2 = d1 - sigma*sqrt(T);
+    double price;
+    if(op_type){
+        price = S0*cdf(d1) - K*exp(-r*T)*cdf(d2);
+    }else{
+        price = K*exp(-r*T)*cdf(-d2) - S0*cdf(-d1);
+    }
+    return price;
+}
+
 double ppf(double alpha = 0.05, int n = 10)
 {
     boost::math::normal_distribution<> myNormal(0, 1);
