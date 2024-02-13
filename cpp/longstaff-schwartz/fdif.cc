@@ -27,7 +27,7 @@ double estimate_option_price(double s0, double K, double T, const vector<vector<
 
 
 vector<vector<double>> explicit_finite_difference(double K, double T, double sigma, double r, int asset_steps, bool op_type, bool early_exercise=false) {
-    double ds = 2 * K / asset_steps;
+    double ds = (2 * K )/ asset_steps;
     double dt = 0.9 / pow(sigma * asset_steps, 2);
     int time_steps = static_cast<int>(T / dt) + 1;
     cout << "TIME STEPS: " << time_steps << endl;
@@ -42,7 +42,7 @@ vector<vector<double>> explicit_finite_difference(double K, double T, double sig
     for (int i = 0; i < asset_steps; ++i) {
         double val = i * ds;
         asset_array[i] = val;
-        grid[i][0] = excercise_option(val, K, op_type); // Exercise the option at time T
+        grid[i][0] = excercise_option(+val, K, op_type); // Exercise the option at time T
         payoff[i] = grid[i][0];
     }
 
