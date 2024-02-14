@@ -89,7 +89,7 @@ bool PolynomialRegression<TYPE>::fitIt(
   std::vector<TYPE> X(tnp1);
   for (int i = 0; i < tnp1; ++i) {
     X[i] = 0;
-    for (int j = 0; j < N; ++j)
+    for (size_t j = 0; j < N; ++j)
       X[i] += (TYPE)pow(x[j], i);
   }
 
@@ -107,7 +107,7 @@ bool PolynomialRegression<TYPE>::fitIt(
   std::vector<TYPE> Y(np1);
   for (int i = 0; i < np1; ++i) {
     Y[i] = (TYPE)0;
-    for (int j = 0; j < N; ++j) {
+    for (size_t j = 0; j < N; ++j) {
       Y[i] += (TYPE)pow(x[j], i)*y[j];
     }
   }

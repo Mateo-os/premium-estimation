@@ -24,7 +24,7 @@ OptionData OPTION_DATA = {
     100.0,  // K
     0.05,   // r
     0.1,    // sigma
-    true,    // option_type
+    false,    // option_type
     0.05    // alpha
 };
 
