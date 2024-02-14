@@ -1,4 +1,4 @@
-S,sigma,T,diferencias finitas,black-scholes,ejercicio temprano d.f.,longstaff-schwartz,ejercicio temprano l.s., d.f. - l.s.
+S,sigma,T,diferenciasfinitas,blackscholes,ejerciciotempranodf,longstaff,ejerciciotempranols,dfls
 50,0.2,1,50,45.1253,4.87466,50,4.87466,0
 50,0.2,2,50,40.6068,9.39319,50,9.39319,0
 50,0.4,1,50,45.7431,4.25693,50,4.25693,0

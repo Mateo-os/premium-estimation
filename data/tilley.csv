@@ -1,4 +1,4 @@
-S,sigma,T,P,Q, diferencias finitas,black-scholes,ejercicio temprano d.f.,tilley,ejercicio temprano tilley, d.f. - tilley
+S,siggma,T,P,Q,diferenciasfinitas,blackscholes,ejerciciotempranodf,tilley,ejerciciotempranotilley,dftilley
 50,0.2,1,100,100,50,45.1253,4.87466,45.4523,0.326933,-4.54773
 50,0.2,1,50,200,50,45.1253,4.87466,45.4258,0.300445,-4.57421
 50,0.2,1,25,400,50,45.1253,4.87466,45.738,0.612687,-4.26197

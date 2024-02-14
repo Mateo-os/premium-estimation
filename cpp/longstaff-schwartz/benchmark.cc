@@ -19,7 +19,7 @@ struct OptionData {
 };
 
 OptionData OPTION_DATA = {
-    50, // n
+    2000, // n
     1.0,    // T
     100.0,  // K
     0.05,   // r
@@ -62,7 +62,7 @@ int main() {
 
     ofstream outputFile;
     outputFile.open("longstaff_schwartz2.csv");
-    string header = "S,sigma,T,diferencias finitas,black-scholes,ejercicio temprano d.f.,longstaff-schwartz,ejercicio temprano l.s., d.f. - l.s.";
+    string header = "S,siggma,T,diferenciasfinitas,blackscholes,ejerciciotempranodf,longstaff,ejerciciotempranols,dfls";
     outputFile << header << endl;
     for(int i = 0; i<20;i++){
         for(int j = 0;j<8;j++){
