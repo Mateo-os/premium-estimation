@@ -20,7 +20,7 @@ struct OptionData {
 };
 
 OptionData OPTION_DATA = {
-    5000, // n
+    2000, // n
     1.0,    // T
     100.0,  // K
     0.05,   // r
