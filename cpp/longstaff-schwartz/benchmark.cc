@@ -61,7 +61,7 @@ int main() {
     }
 
     ofstream outputFile;
-    outputFile.open("longstaff_schwartz2.csv");
+    outputFile.open("longstaff_schwartz.csv");
     string header = "S,siggma,T,diferenciasfinitas,blackscholes,ejerciciotempranodf,longstaff,ejerciciotempranols,dfls";
     outputFile << header << endl;
     for(int i = 0; i<20;i++){
