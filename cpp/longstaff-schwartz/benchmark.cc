@@ -19,7 +19,7 @@ struct OptionData {
 };
 
 OptionData OPTION_DATA = {
-    2000, // n
+    360, // n
     1.0,    // T
     100.0,  // K
     0.05,   // r
@@ -31,45 +31,50 @@ OptionData OPTION_DATA = {
 int main() {
     int STOCK_STEPS = 2000;
     int TRAYECTORIES = 10000;
-    int INITIAL_PRICE[] = {50,95,100,105,150};
+    int INITIAL_PRICE[] = {81,95,100,105,119};
     double SIGMAS[] = {0.2,0.4};
     double TIMES[] = {1,2};
     int n = OPTION_DATA.n;
     double K = OPTION_DATA.K;
     double r = OPTION_DATA.r;
     bool option_type = OPTION_DATA.option_type;
-    int index = 0;
-    vector<vector<double>> data(20,vector<double>(9));
-    for (int p = 0; p<5;p++) {
+    vector<vector<vector<double>>> data(2, vector<vector<double>>(10,vector<double>(8)));
+    int index;
+    for(int t = 0; t < 2; t++){
+        index = 0;
         for(int s = 0; s < 2;s++) {
-            for(int t = 0; t < 2; t++){
+            double sigma = SIGMAS[s];
+            double T = TIMES[t];
+            vector<vector<double>> grid = explicit_finite_difference(K,T,sigma,r,STOCK_STEPS,option_type,true); 
+            for (int p = 0; p<5;p++) {
                 double s0 = INITIAL_PRICE[p];
-                double sigma = SIGMAS[s];
-                double T = TIMES[t];
-                data[index][0] = s0;
-                data[index][1] = sigma;    
-                data[index][2] = T;
-                data[index][3] = full_finite_diference(s0,OPTION_DATA.K,T,sigma,r,STOCK_STEPS,option_type,true);
-                data[index][4] = black_scholes(r,s0,K,T,sigma,option_type);
-                data[index][5] = data[index][3] - data[index][4]; 
-                data[index][6] = longstaff_schwartz(TRAYECTORIES,n,r,s0,K,T,sigma,option_type,true);
-                data[index][7] = data[index][6] - data[index][4]; 
-                data[index][8] = data[index][3] - data[index][6];
+                data[t][index][0] = s0;
+                data[t][index][1] = sigma;    
+                data[t][index][2] = estimate_option_price(s0,K,T,grid);
+                data[t][index][3] = black_scholes(r,s0,K,T,sigma,option_type);
+                data[t][index][4] = data[t][index][2] - data[t][index][3]; 
+                data[t][index][5] = longstaff_schwartz(TRAYECTORIES,n*T,r,s0,K,T,sigma,option_type,true);
+                data[t][index][6] = data[t][index][5] - data[t][index][3]; 
+                data[t][index][7] = data[t][index][2] - data[t][index][5];
                 index++;
             }
         } 
     }
 
     ofstream outputFile;
-    outputFile.open("longstaff_schwartz.csv");
-    string header = "S,siggma,T,diferenciasfinitas,blackscholes,ejerciciotempranodf,longstaff,ejerciciotempranols,dfls";
-    outputFile << header << endl;
-    for(int i = 0; i<20;i++){
-        for(int j = 0;j<8;j++){
-            outputFile << data[i][j] << ',';
+    string header = "S,siggma,diferenciasfinitas,blackscholes,ejerciciotempranodf,longstaff,ejerciciotempranols,dfls";
+    for(int t = 0; t < 2; t++){
+        int T = TIMES[t];
+        string filename = "longstaff_schwartz_T" + to_string(T) + ".csv";
+        outputFile.open(filename);
+        outputFile << header << endl;
+        for(int i = 0; i<10;i++){
+            for(int j = 0;j<7;j++){
+                outputFile << data[t][i][j] << ',';
+            }
+            outputFile << data[t][i][7] << endl;
         }
-        outputFile << data[i][8] << endl;
-    }
-    outputFile.close();
+        outputFile.close();
+    } 
     return 0;
 }

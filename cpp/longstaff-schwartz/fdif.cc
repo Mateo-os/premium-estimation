@@ -26,7 +26,7 @@ double estimate_option_price(double s0, double K, double T, const vector<vector<
 }
 
 
-vector<vector<double>> explicit_finite_difference(double K, double T, double sigma, double r, int asset_steps, bool op_type, bool early_exercise=false) {
+vector<vector<double>> explicit_finite_difference(double K, double T, double sigma, double r, int asset_steps, bool op_type, bool early_exercise=true) {
     double ds = (2 * K )/ asset_steps;
     double dt = 0.9 / pow(sigma * asset_steps, 2);
     int time_steps = static_cast<int>(T / dt) + 1;
