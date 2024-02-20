@@ -20,7 +20,7 @@ struct OptionData {
 };
 
 OptionData OPTION_DATA = {
-    2000, // n
+    360, // n
     1.0,    // T
     100.0,  // K
     0.05,   // r
@@ -30,42 +30,41 @@ OptionData OPTION_DATA = {
 };
 
 int main() {
-    int STOCK_STEPS = OPTION_DATA.n;
-    int TRAYECTORIES = 10000;
-    int INITIAL_PRICE[] = {50,95,100,105,150};
-    int POSIBBLE_Q[] = {100,200,400};
+    int STOCK_STEPS = 2000;
+    int TRAYECTORIES = 20000;
+    int INITIAL_PRICE[] = {81,95,100,105,119};
+    int POSIBBLE_Q[] = {100,400,800};
     double SIGMAS[] = {0.2,0.4};
     double TIMES[] = {1,2};
-    int TABLE_SIZE = (sizeof(INITIAL_PRICE) * sizeof(POSIBBLE_Q) * sizeof(TIMES) * sizeof(SIGMAS)) / (pow(sizeof(int),2) * pow(sizeof(double),2));
     int n = OPTION_DATA.n;
     double K = OPTION_DATA.K;
     double r = OPTION_DATA.r;
     bool option_type = OPTION_DATA.option_type;
-    int index = 0;
-    vector<vector<double>> data(60,vector<double>(11));
-    for (int p = 0; p<5;p++) {
+    vector<vector<vector<double>>> data(2, vector<vector<double>>(30,vector<double>(10)));
+    int index;
+    int sum;
+    for(int t = 0; t < 2; t++){
+        index = 0;
         for(int s = 0; s < 2;s++) {
-            for(int t = 0; t < 2; t++){
+            double sigma = SIGMAS[s];
+            double T = TIMES[t];
+            cout << " D.F.  " << endl;
+            vector<vector<double>> grid = explicit_finite_difference(K,T,sigma,r,STOCK_STEPS,option_type,true); 
+            for (int p = 0; p<5;p++) {
                 double s0 = INITIAL_PRICE[p];
-                double sigma = SIGMAS[s];
-                double T = TIMES[t];
-                double fdiff = full_finite_diference(s0,OPTION_DATA.K,T,sigma,r,STOCK_STEPS,option_type,true);
-                double b_s = black_scholes(r,s0,K,T,sigma,option_type);
                 for(int q = 0; q<3;q++){
-
                     int Q = POSIBBLE_Q[q];
                     int P = TRAYECTORIES/Q;
-                    data[index][0] = s0;
-                    data[index][1] = sigma;    
-                    data[index][2] = T;
-                    data[index][3] = P; 
-                    data[index][4] = Q;
-                    data[index][5] = fdiff;
-                    data[index][6] = b_s;
-                    data[index][7] = data[index][5] - data[index][6]; 
-                    data[index][8] = tilley(P,Q,s0,K,sigma,r,T,n,option_type,true);
-                    data[index][9] = data[index][8] - data[index][6]; 
-                    data[index][10] = data[index][9] - data[index][7];
+                    data[t][index][0] = s0;
+                    data[t][index][1] = sigma;    
+                    data[t][index][2] = P; 
+                    data[t][index][3] = Q;
+                    data[t][index][4] = estimate_option_price(s0,K,T,grid);
+                    data[t][index][5] = black_scholes(r,s0,K,T,sigma,option_type);
+                    data[t][index][6] = data[t][index][4] - data[t][index][5]; 
+                    data[t][index][7] = tilley(P,Q,s0,K,sigma,r,T,n*T,option_type,true);
+                    data[t][index][8] = data[t][index][7] - data[t][index][5]; 
+                    data[t][index][9] = data[t][index][6] - data[t][index][8];
                     index++;
                 }
             }
@@ -73,15 +72,19 @@ int main() {
     }
 
     ofstream outputFile;
-    outputFile.open("tilley.csv");
-    string header = "S,sigma,T,P,Q, diferencias finitas,black-scholes,ejercicio temprano d.f.,tilley,ejercicio temprano tilley, d.f. - tilley";
-    outputFile << header << endl;
-    for(int i = 0; i<TABLE_SIZE;i++){
-        for(int j = 0;j<10;j++){
-            outputFile << data[i][j] << ',';
+    string header = "S,siggma,P,Q,diferenciasfinitas,blackscholes,ejerciciotempranodf,tilley,ejerciciotempranotilley,dftilley";
+    for(int t = 0; t < 2; t++){
+        int T = TIMES[t];
+        string filename = "tilley_T" + to_string(T) + ".csv";
+        outputFile.open(filename);
+        outputFile << header << endl;
+        for(int i = 0; i<30;i++){
+            for(int j = 0;j<9;j++){
+                outputFile << data[t][i][j] << ',';
+            }
+            outputFile << data[t][i][9] << endl;
         }
-        outputFile << data[i][10] << endl;
+        outputFile.close();
     }
-    outputFile.close();
     return 0;
 }
